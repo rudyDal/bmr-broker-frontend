@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+	integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+	crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+	integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+	crossorigin="anonymous"></script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+	integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+	crossorigin="anonymous"></script>
+<script
+	src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+	integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+	crossorigin="anonymous"></script>
+
+<style>
+
+	.page-header{
+		text-align: center;
+		background: bisque;
+	}
+
+	.form{
+		width: 50%;
+    	margin-left: 25%;
+	}
+	.table-container{
+		width: 50%;
+    	text-align: center;
+    	margin-left: 25%;
+	}
+	#appErr{
+		width: 50%;
+    	margin-left: 25%;
+	}
+
+</style>
+
+<script>
+function loginBMR(){
+
+		var username = document.getElementById("usrnm").value;
+		var password = document.getElementById("pwd").value;
+
+
+        var params = {"username": username,"password":password};
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", 'https://mbr-server.herokuapp.com/mbr/login', true);
+
+    
+        xhr.setRequestHeader("Content-Type", "application/json; utf-8");
+
+        xhr.onreadystatechange = function() {
+            if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+                //var res = JSON.parse(this.response).app;
+                console.log(this.response);
+                var loginRes = JSON.parse(this.response);
+                var nestxhr = new XMLHttpRequest();
+                nestxhr.open("POST", 'https://mbr-server.herokuapp.com/mbr/getinfo', true);
+                nestxhr.setRequestHeader("Content-Type", "application/json; utf-8");
+                nestxhr.setRequestHeader("Authorization", 'Bearer ' + loginRes.token);
+
+                parameters = {"id": loginRes.username}; 
+
+                nestxhr.onreadystatechange = function() {
+                	if (this.readyState === XMLHttpRequest.DONE && this.status === 200){
+                		var info = JSON.parse(this.response).app;
+                		document.getElementById("user-id").innerHTML = info.id;
+                		document.getElementById("user-name").innerHTML = info.name;
+                		document.getElementById("user-phone").innerHTML = info.phone;
+		                document.getElementById("user-add").innerHTML = info.address;
+		                document.getElementById("user-status").innerHTML = info.status;
+		                document.getElementById("user-empl").innerHTML = info.employer;
+		                document.getElementById('home').style.display='none';
+		                document.getElementById('app-table').style.display='block';
+		                document.getElementById('appErr').style.display='none';
+                	}else if(this.readyState === XMLHttpRequest.DONE && this.status === 404){
+                		document.getElementById("form-response-error").innerHTML = "Error : " + JSON.parse(this.response).message;
+            			document.getElementById('appErr').style.display='block';
+                	}
+                }
+                nestxhr.send(JSON.stringify(parameters));
+
+               
+
+            }else if(this.readyState === XMLHttpRequest.DONE && (this.status === 401 || this.status === 500)) {
+            	console.log(this.response);
+            	document.getElementById("form-response-error").innerHTML = "Error : " + JSON.parse(this.response).message;
+            	document.getElementById('appErr').style.display='block';
+            }
+        }
+        xhr.send(JSON.stringify(params));
+        
+    }
+
+ </script>
+</head>
+<body>
+	<div class = "page-header"><h1 class="h1 mb-4">Welcome to MBR</h1></div>
+				<div class="tab-pane fade show active" id="home" role="tabpanel"
+				aria-labelledby="home-tab">
+				<!-- Default form login -->
+				<div class="text-center border border-light p-5 form" modelAttribute="userLogin">
+
+					<p class="h4 mb-4">Sign In</p>
+					<div class="form-field">
+
+						<!-- Email -->
+						<div class="form-input">
+							<input type="text" id="usrnm"
+								class="form-control mb-4" placeholder="username" name="username">
+						</div>
+
+						<!-- Password -->
+						<div class="form-input">
+							<input type="password" id="pwd"
+								class="form-control mb-4" placeholder="Password" name="password">
+						</div>
+						<div class="d-flex justify-content-around"></div>
+
+						<!-- Sign in button -->
+						<div class="form-input">
+							<button class="btn btn-info btn-block my-4" type="submit" onclick="loginBMR()">Login</button>
+						</div>
+
+					</div>
+				</div>
+				<!-- Default form login -->
+			</div>
+
+			<div class="table-container" style="display: none" id="app-table">
+				<div class="h4 mb-4">Your Application</div>
+				<table class="table table-striped">
+				  <tbody>
+				    <tr>
+				      <th scope="row">Id</th>
+				      <td id="user-id"></td>
+				    </tr>
+				    <tr>
+				      <th scope="row">Name</th>
+				      <td id="user-name"></td>
+				    </tr>
+				    <tr>
+				      <th scope="row">Phone</th>
+				      <td id="user-phone"></td>
+				    </tr>
+				    <tr>
+				      <th scope="row">Address</th>
+				      <td id="user-add"></td>
+				    </tr>
+				    <tr>
+				      <th scope="row">Employer</th>
+				      <td id="user-empl"></td>
+				    </tr>
+				    <tr>
+				      <th scope="row">Status</th>
+				      <td id="user-status"></td>
+				    </tr>
+				  </tbody>
+				</table>
+				<button class="btn btn-danger" type="submit" onclick="window.location.href = '/';">Logout</button>
+				
+			</div>
+
+			<div style ='display: none'class="alert alert-danger alert-dismissible fade show" id="appErr">
+							<strong>Error!</strong>
+							<div id= "form-response-error" ></div>
+				</div>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+	integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+	crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+	integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+	crossorigin="anonymous"></script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+	integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+	crossorigin="anonymous"></script>
+<script
+	src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+	integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+	crossorigin="anonymous"></script>
+
+<style>
+
+	.page-header{
+		text-align: center;
+		background: bisque;
+	}
+
+	.form{
+		width: 50%;
+    	margin-left: 25%;
+	}
+
+	#appErr, #appSuc{
+		width: 50%;
+    	margin-left: 25%;
+	}
+
+</style>
+<script>
+function signupBMR(){
+
+		var uname = document.getElementById("unam").value;
+		var name = document.getElementById("nam").value;
+		var pass = document.getElementById("pass").value;
+		var cpass = document.getElementById("cpass").value;
+
+        var params = {"username": uname,"name":name,"password":pass,"confirmPwd":cpass};
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", 'https://mbr-server.herokuapp.com/mbr/signup', true);
+
+    
+        xhr.setRequestHeader("Content-Type", "application/json; utf-8");
+
+        xhr.onreadystatechange = function() {
+            if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+                document.getElementById("form-response-success").innerHTML = "Sucess : " + JSON.parse(this.response).message;
+                document.getElementById('appErr').style.display='none';
+            	document.getElementById('appSuc').style.display='block';
+            }else if (this.readyState === XMLHttpRequest.DONE && (this.status === 400 || this.status === 500)){
+            	document.getElementById("form-response-error").innerHTML = "Error : " + JSON.parse(this.response).message;
+            	document.getElementById('appSuc').style.display='none';
+            	document.getElementById('appErr').style.display='block';
+            }
+        }
+        xhr.send(JSON.stringify(params));
+        
+    }
+
+ </script>
+</head>
+<body>
+	<div class = "page-header"><h1 class="h1 mb-4">Welcome to MBR</h1></div>
+	<div id="profile" role="tabpanel"
+				aria-labelledby="profile-tab">
+
+				<!-- Default form Sign Up -->
+				<div class="text-center border border-light p-5 form">
+
+					<p class="h4 mb-4">SignUp Form</p>
+					<div class="form-field">
+							<!-- Name -->
+							<div class="user-select">
+								<input type="text" id="unam" class="form-control mb-4"
+									placeholder="Username" name="username">
+							</div>
+
+						<!-- Phone Number -->
+						<div class="user-select">
+								<input type="text" id="nam" class="form-control mb-4"
+									placeholder="Name" name="name">
+						</div>
+
+						<!-- Address -->
+						<div class="user-select">
+								<input type="password" id="pass" class="form-control mb-4"
+									placeholder="Password" name="pass">
+						</div>
+
+						<div class="user-select">
+								<input type="password" id="cpass" class="form-control mb-4"
+									placeholder="Confirm password" name="cpass">
+						</div>
+
+						<!-- Sign up button -->
+						<div class="form-input">
+							<button class="btn btn-info btn-block my-4" type="submit"onclick="signupBMR()">Submit</button>
+						</div>
+					</div>
+				</div>
+				<div style ='display: none'class="alert alert-danger alert-dismissible fade show" id="appErr">
+							<strong>Error!</strong>
+							<div id= "form-response-error" ></div>
+				</div>
+
+				<div style ='display: none' class="alert alert-success alert-dismissible fade show" id="appSuc">
+							<strong>Success!</strong>
+							<div id= "form-response-success" ></div>
+							<button class="btn btn-success" type="submit" onclick="window.location.href = '/';">MBR-Login</button>
+				</div>
+				
+				
+
+			</div>
+
+</body>
+</html>
